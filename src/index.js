@@ -1,7 +1,10 @@
-import cors from 'cors';
-import httpContext from 'express-http-context';
 import compression from 'compression';
+import cors from 'cors';
 import express from 'express';
+import httpContext from 'express-http-context';
+
+import './env';
+
 import routes from './routes';
 
 import { APP_HOST, APP_PORT, BASE_URL } from './configs/config';
