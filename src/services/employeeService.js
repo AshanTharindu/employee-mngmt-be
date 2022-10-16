@@ -1,3 +1,4 @@
+import { Employee } from "../models/Employee";
 import employeeRepositary from "../repositories/employeeRepositary"
 
 /**
@@ -5,7 +6,8 @@ import employeeRepositary from "../repositories/employeeRepositary"
  * @returns 
  */
 const getEmployees = async () => {
-    return await employeeRepositary.getEmployees();
+    const employees = Employee.find();
+    return employees;
 }
 
 /**
@@ -14,7 +16,8 @@ const getEmployees = async () => {
  * @returns 
  */
 const registerEmployee = async (employee) => {
-    return await employeeRepositary.registerEmployee(employee);
+    const employeeModel = new Employee(employee);
+    await employeeModel.save()
 }
 
 export default {getEmployees, registerEmployee}

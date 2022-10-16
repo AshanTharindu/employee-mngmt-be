@@ -17,6 +17,6 @@ export const registerEmployee = async (req, res, next) => {
     res.json(registeredEmployee);
   } catch (err) {
     console.log(err);
-    req.err(err);
+    res.json({msg: err.message})
   }
 };

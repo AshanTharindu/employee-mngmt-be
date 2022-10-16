@@ -1,11 +1,9 @@
-import { getDatabaseConnection } from '../database/dbConnection';
 
 /**
  * Gets all the registerd employees.
  * @returns 
  */
 const getEmployees = async () => {
-  const { client, dbConnection } = await getDatabaseConnection();
   try {
     const employees = dbConnection.collection('employees');
     const cursor = employees.find();
