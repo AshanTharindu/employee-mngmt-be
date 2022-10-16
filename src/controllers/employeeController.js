@@ -2,11 +2,8 @@ import employeeService from '../services/employeeService';
 
 export const getEmployees = async (req, res, next) => {
   try {
-    await employeeService.getEmployees();
-    res.json([
-      { name: 'ashan', role: 'admin' },
-      { name: 'ashan', role: 'manager' },
-    ]);
+    const employees = await employeeService.getEmployees();
+    res.json(employees);
   } catch (err) {
     console.log(err);
     req.err(err);
@@ -15,9 +12,11 @@ export const getEmployees = async (req, res, next) => {
 
 export const registerEmployee = async (req, res, next) => {
   try {
-    return await employeeService.registerEmployee();
+    const employee = req.body;
+    const registeredEmployee = await employeeService.registerEmployee(employee);
+    res.json(registeredEmployee);
   } catch (err) {
     console.log(err);
-    req.err(err);
+    res.json({msg: err.message})
   }
 };
