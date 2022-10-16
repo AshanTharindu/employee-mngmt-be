@@ -14,9 +14,9 @@ export const employeeSchema = new Schema({
     },
     message: props => `${props.value} is not a valid email!`
   },},
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  firstname: { type: String, required: true },
+  lastname: { type: String, required: true },
   address: { type: String, required: true },
   // only defined roles are allowed
-  role: { type: String, required: true, enum: ['admin', 'writer', 'reader'] },
+  role: { type: String, required: true, enum: ['admin', 'manager', 'worker'] },
 });
