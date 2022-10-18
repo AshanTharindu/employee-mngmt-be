@@ -2,10 +2,10 @@ import loginService from '../services/loginService';
 
 export const login = async (req, res, next) => {
   try {
-    await loginService.loginUser();
-    res.json('success');
+    const token = await loginService.loginUser(req.body);
+    res.json({ token: token });
   } catch (err) {
     console.log(err);
-    req.err(err);
+    res.json(err);
   }
 };
