@@ -1,6 +1,6 @@
 import { Employee } from '../models/Employee';
 import employeeRepositary from '../repositories/employeeRepositary';
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
 
 /**
  * Gets all the employees.
@@ -17,14 +17,63 @@ const getEmployees = async () => {
  * @returns
  */
 const registerEmployee = async (employee) => {
-  console.log(
-    '🚀 ~ file: employeeService.js ~ line 19 ~ registerEmployee ~ employee',
-    employee
-  );
   const salt = await bcrypt.genSalt(10);
   employee.password = await bcrypt.hash(employee.password, salt);
   const employeeModel = new Employee(employee);
   await employeeModel.save();
 };
 
-export default { getEmployees, registerEmployee };
+/**
+ * Registeres the employee.
+ * @param {*} employee
+ * @returns
+ */
+const addEmployees = async (employees) => {
+  const savedEmployees = await Employee.insertMany(employees);
+  return savedEmployees;
+};
+
+/**
+ * Updates the employee with the sent update
+ * Error if employee not found or already delete
+ * @param {*} id
+ * @param {*} employeeUpdate
+ * @returns
+ */
+const updateEmployee = async (id, employeeUpdate) => {
+  const employee = await Employee.findById(id);
+  if (employee.archived)
+    throw new Error(
+      `Employee ${employee.firstname} ${employee.lastname} is deleted.`
+    );
+  // Update the document with new data
+  Object.keys(employeeUpdate).forEach((empKey) => {
+    employee[empKey] = employeeUpdate[empKey];
+  });
+  // Reason for using save instead of updateOne/update : run the schema validations and middleware
+  return await employee.save();
+};
+
+
+/**
+ * Deletes the employee of given id. 
+ * Error if employee not found or already deleted
+ * @param {*} id 
+ */
+const deleteEmployee = async (id) => {
+  const employee = await Employee.findById(id);
+  if (employee.archived)
+    throw new Error(
+      `Employee ${employee.firstname} ${employee.lastname} is already deleted.`
+    );
+  employee.archived = 1;
+  await employee.save()
+};
+
+export default {
+  getEmployees,
+  registerEmployee,
+  addEmployees,
+  updateEmployee,
+  deleteEmployee,
+};
