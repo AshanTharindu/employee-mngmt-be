@@ -1,14 +1,15 @@
-import { Employee } from '../models/Employee';
-import employeeRepositary from '../repositories/employeeRepositary';
 import bcrypt from 'bcryptjs';
+import { Employee } from '../models/Employee';
+import { RegisteredEmployee } from '../models/RegisteredEmployee';
 
 /**
  * Gets all the employees.
  * @returns
  */
 const getEmployees = async () => {
-  const employees = Employee.find();
-  return employees;
+  const employees = await Employee.find({ archived: 0 });
+  const registeredEmployees = await RegisteredEmployee.find({ archived: 0 });
+  return [...employees, ...registeredEmployees];
 };
 
 /**
@@ -19,8 +20,9 @@ const getEmployees = async () => {
 const registerEmployee = async (employee) => {
   const salt = await bcrypt.genSalt(10);
   employee.password = await bcrypt.hash(employee.password, salt);
-  const employeeModel = new Employee(employee);
-  await employeeModel.save();
+  employee.registered = 1;
+  const registeredEmployeeModel = new RegisteredEmployee(employee);
+  await registeredEmployeeModel.save();
 };
 
 /**
@@ -29,6 +31,10 @@ const registerEmployee = async (employee) => {
  * @returns
  */
 const addEmployees = async (employees) => {
+  employees = employees.map((employee) => {
+    employee.registered = 0;
+    return employee;
+  });
   const savedEmployees = await Employee.insertMany(employees);
   return savedEmployees;
 };
@@ -54,11 +60,10 @@ const updateEmployee = async (id, employeeUpdate) => {
   return await employee.save();
 };
 
-
 /**
- * Deletes the employee of given id. 
+ * Deletes the employee of given id.
  * Error if employee not found or already deleted
- * @param {*} id 
+ * @param {*} id
  */
 const deleteEmployee = async (id) => {
   const employee = await Employee.findById(id);
@@ -67,7 +72,7 @@ const deleteEmployee = async (id) => {
       `Employee ${employee.firstname} ${employee.lastname} is already deleted.`
     );
   employee.archived = 1;
-  await employee.save()
+  await employee.save();
 };
 
 export default {
