@@ -1,7 +1,7 @@
-import { Employee } from '../models/Employee';
+import { RegisteredEmployee } from '../models/RegisteredEmployee';
 
 const loginUser = async ({ username, password }) => {
-  const user = await Employee.findByCredentials(username, password);
+  const user = await RegisteredEmployee.findByCredentials(username, password);
   const token = user.generateAuthToken()
   return token;
 };

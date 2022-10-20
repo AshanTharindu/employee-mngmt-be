@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { Employee } from '../models/Employee';
+import { RegisteredEmployee } from '../models/RegisteredEmployee';
 
 export const authenticate = async (req, res, next) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '')
         const decoded = jwt.verify(token, process.env.TOKEN_SECRET)
-        const user = await Employee.findOne({ _id: decoded._id })
+        const user = await RegisteredEmployee.findOne({ _id: decoded._id })
 
         if (!user) {
             throw new Error()
