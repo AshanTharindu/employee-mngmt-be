@@ -41,6 +41,10 @@ const addEmployees = async (employees) => {
  */
 const updateEmployee = async (id, employeeUpdate) => {
   const employee = await Employee.findById(id);
+  if (employee.archived)
+    throw new Error(
+      `Employee ${employee.firstname} ${employee.lastname} is deleted.`
+    );
   // Update the document with new data
   Object.keys(employeeUpdate).forEach((empKey) => {
     employee[empKey] = employeeUpdate[empKey];
@@ -49,7 +53,16 @@ const updateEmployee = async (id, employeeUpdate) => {
   return await employee.save();
 };
 
-const deleteEmployee = async () => {};
+const deleteEmployee = async (id) => {
+  const employee = await Employee.findById(id);
+  if (employee.archived)
+    throw new Error(
+      `Employee ${employee.firstname} ${employee.lastname} is already deleted.`
+    );
+  employee.archived = 1;
+  await employee.save()
+};
+
 export default {
   getEmployees,
   registerEmployee,
