@@ -35,6 +35,7 @@ const addEmployees = async (employees) => {
 
 /**
  * Updates the employee with the sent update
+ * Error if employee not found or already delete
  * @param {*} id
  * @param {*} employeeUpdate
  * @returns
@@ -53,6 +54,12 @@ const updateEmployee = async (id, employeeUpdate) => {
   return await employee.save();
 };
 
+
+/**
+ * Deletes the employee of given id. 
+ * Error if employee not found or already deleted
+ * @param {*} id 
+ */
 const deleteEmployee = async (id) => {
   const employee = await Employee.findById(id);
   if (employee.archived)

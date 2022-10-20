@@ -7,6 +7,6 @@ router.get('/', authenticate, employeeController.getEmployees);
 router.post('/', employeeController.registerEmployee);
 router.patch('/:id', employeeController.updateEmployee);
 router.delete('/:id', employeeController.deleteEmployee);
-router.post('/csv-import', employeeController.registerEmployee);
+router.post('/csv-import', employeeController.addEmployees);
 
 export default router;
