@@ -6,13 +6,15 @@ const { Schema } = mongoose;
  * Employee schema
  */
 export const registeredEmployeeSchema = new Schema({
-  username: { type: String, unique: true }, // username should be unique
+  username: { type: String,required: true, unique: true }, // username should be unique
   password: {
     type: String,
+    required: true,
   },
   email: {
     type: String,
     unique: true,
+    required: true,
     validate: {
       // custom validator for validating email
       validator: (_email) => {
@@ -25,7 +27,6 @@ export const registeredEmployeeSchema = new Schema({
   lastname: { type: String, required: true },
   address: { type: String, required: true },
   role: { type: String, required: true},
-  registered: {type: Number, enum: [0,1]},
   // 1: true, 0: false
   archived: { type: Number, require: true, enum: [0, 1], default: 0 },
 });
