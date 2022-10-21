@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { EMPLOYEE_TYPES } from '../constants/constants';
 import { Employee } from '../models/Employee';
 import { RegisteredEmployee } from '../models/RegisteredEmployee';
 
@@ -7,9 +8,19 @@ import { RegisteredEmployee } from '../models/RegisteredEmployee';
  * @returns
  */
 const getEmployees = async () => {
-  const employees = await Employee.find({ archived: 0 });
+  const employees = await Employee.find({ archived: 0 }).lean();
   const registeredEmployees = await RegisteredEmployee.find({ archived: 0 });
-  return [...employees, ...registeredEmployees];
+
+  return [
+    ...employees.map((emp) => {
+      emp.registered = 0;
+      return emp;
+    }),
+    ...registeredEmployees.map((regEmp) => {
+      regEmp.registered = 1;
+      return regEmp;
+    }),
+  ];
 };
 
 /**
@@ -46,8 +57,13 @@ const addEmployees = async (employees) => {
  * @param {*} employeeUpdate
  * @returns
  */
-const updateEmployee = async (id, employeeUpdate) => {
-  const employee = await Employee.findById(id);
+const updateEmployee = async (id, type, employeeUpdate) => {
+  let employee;
+  if (type === EMPLOYEE_TYPES.REGISTERED) {
+    employee = await RegisteredEmployee.findById(id);
+  } else {
+    employee = await Employee.findById(id);
+  }
   if (employee.archived)
     throw new Error(
       `Employee ${employee.firstname} ${employee.lastname} is deleted.`
@@ -65,8 +81,13 @@ const updateEmployee = async (id, employeeUpdate) => {
  * Error if employee not found or already deleted
  * @param {*} id
  */
-const deleteEmployee = async (id) => {
-  const employee = await Employee.findById(id);
+const deleteEmployee = async (id, type) => {
+  let employee;
+  if (type === EMPLOYEE_TYPES.REGISTERED) {
+    employee = await RegisteredEmployee.findById(id);
+  } else {
+    employee = await Employee.findById(id);
+  }
   if (employee.archived)
     throw new Error(
       `Employee ${employee.firstname} ${employee.lastname} is already deleted.`

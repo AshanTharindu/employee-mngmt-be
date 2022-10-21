@@ -34,9 +34,10 @@ export const addEmployees = async (req, res) => {
 
 export const updateEmployee = async (req, res) => {
   try {
-    const { body, params } = req;
+    const { body, params, query } = req;
     const updatedEmployee = await employeeService.updateEmployee(
       params.id,
+      query.type,
       body
     );
     res.status(200).send(updatedEmployee);
@@ -48,9 +49,9 @@ export const updateEmployee = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   try {
-    const { id } = req.params;
-    await employeeService.deleteEmployee(id);
-    res.status(200).send({ msg: `Employee ${id} deleted.` });
+    const { params, query } = req;
+    await employeeService.deleteEmployee(params.id, query.type);
+    res.status(200).send({ msg: `Employee ${params.id} deleted.` });
   } catch (err) {
     console.log(err);
     res.status(500).send({ msg: err.message });
