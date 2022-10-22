@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build && node dist/index.js",
+    "start": "node dist",
     "start:dev": "nodemon --watch .env --watch src --exec babel-node src --source-maps",
-    "build": "babel src -d dist"
+    "build": "rimraf dist && babel src --copy-files --out-dir dist --source-maps"
   },
   "author": "Ashan Tharindu",
   "license": "ISC",
