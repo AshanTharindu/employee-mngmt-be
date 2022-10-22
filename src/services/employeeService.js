@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { EMPLOYEE_TYPES } from '../constants/constants';
+import { Comment } from '../models/Comment';
 import { Employee } from '../models/Employee';
 import { RegisteredEmployee } from '../models/RegisteredEmployee';
 
@@ -8,8 +9,38 @@ import { RegisteredEmployee } from '../models/RegisteredEmployee';
  * @returns
  */
 const getEmployees = async () => {
-  const employees = await Employee.find({ archived: 0 }).lean();
-  const registeredEmployees = await RegisteredEmployee.find({ archived: 0 });
+  const employees = await Employee.find({ archived: 0 })
+    .lean()
+    .populate([
+      {
+        path: 'comments',
+        model: Comment,
+        populate: [
+          {
+            path: 'author',
+            model: RegisteredEmployee,
+            select: 'firstname lastname',
+          },
+        ],
+      },
+    ]);
+  const registeredEmployees = await RegisteredEmployee.find({
+    archived: 0,
+  })
+    .lean()
+    .populate([
+      {
+        path: 'comments',
+        model: Comment,
+        populate: [
+          {
+            path: 'author',
+            model: RegisteredEmployee,
+            select: 'firstname lastname',
+          },
+        ],
+      },
+    ]);
 
   return [
     ...employees.map((emp) => {
