@@ -15,7 +15,8 @@
     "@babel/cli": "^7.19.3",
     "@babel/core": "^7.19.3",
     "@babel/preset-env": "^7.19.4",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "@babel/node": "^7.19.1",
@@ -31,5 +32,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.10.0",
     "mongoose": "^6.6.5"
+  },
+  "engines": {
+    "node": "16.17.0"
   }
 }
