@@ -17,7 +17,23 @@ export const registerEmployee = async (req, res) => {
     res.status(201).send(registeredEmployee);
   } catch (err) {
     console.log(err);
-    res.json({ msg: err.message });
+    // todo this can be moved to a error handler middleware 
+    if (
+      err.message.includes(
+        'E11000 duplicate key error collection: test.registeredemployees index: username_1 dup key'
+      )
+    ) {
+      res.status(500).send({ msg: 'username already taken' });
+    }
+    else if (
+      err.message.includes(
+        'E11000 duplicate key error collection: test.registeredemployees index: email_1 dup key'
+      )
+    ) {
+      res.status(500).send({ msg: 'email already taken' });
+    } else {
+      res.status(500).send({ msg: err.message });
+    }
   }
 };
 
