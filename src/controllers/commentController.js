@@ -1,5 +1,10 @@
 import commentService from '../services/commentService';
 
+/**
+ * Comment controller
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const addComment = async (req, res) => {
   try {
     const {

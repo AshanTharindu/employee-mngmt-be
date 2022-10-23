@@ -3,6 +3,15 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { registeredEmployeeSchema } from '../schemas/registeredEmployeeSchema';
 
+/**
+ * Registered employee model functionlity
+ * @returns 
+ */
+
+/**
+ * Handles employe object keys
+ * @returns Registered employee object
+ */
 registeredEmployeeSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
@@ -12,6 +21,12 @@ registeredEmployeeSchema.methods.toJSON = function () {
   return userObject;
 };
 
+/**
+ * Find the user by credentials
+ * @param {*} username 
+ * @param {*} password 
+ * @returns Registered employee object
+ */
 registeredEmployeeSchema.statics.findByCredentials = async (
   username,
   password
@@ -31,6 +46,10 @@ registeredEmployeeSchema.statics.findByCredentials = async (
   return user;
 };
 
+/**
+ * Genereate auth token upon successful login
+ * @returns 
+ */
 registeredEmployeeSchema.methods.generateAuthToken = function () {
   const user = this;
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);

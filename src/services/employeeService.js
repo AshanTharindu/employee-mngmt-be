@@ -6,7 +6,7 @@ import { RegisteredEmployee } from '../models/RegisteredEmployee';
 
 /**
  * Gets all the employees.
- * @returns
+ * @returns employee list
  */
 const getEmployees = async () => {
   const employees = await Employee.find({ archived: 0 })
@@ -41,7 +41,7 @@ const getEmployees = async () => {
         ],
       },
     ]);
-
+  // contact both registered/unregistered employees
   return [
     ...employees.map((emp) => {
       emp.registered = 0;
@@ -57,7 +57,7 @@ const getEmployees = async () => {
 /**
  * Registeres the employee.
  * @param {*} employee
- * @returns
+ * @returns registered employee
  */
 const registerEmployee = async (employee) => {
   const salt = await bcrypt.genSalt(10);
@@ -70,7 +70,7 @@ const registerEmployee = async (employee) => {
 /**
  * Registeres the employee.
  * @param {*} employee
- * @returns
+ * @returns added employees list
  */
 const addEmployees = async (employees) => {
   employees = employees.map((employee) => {
@@ -86,7 +86,7 @@ const addEmployees = async (employees) => {
  * Error if employee not found or already delete
  * @param {*} id
  * @param {*} employeeUpdate
- * @returns
+ * @returns updated employee
  */
 const updateEmployee = async (id, type, employeeUpdate) => {
   let employee;
@@ -129,6 +129,12 @@ const deleteEmployee = async (id, type) => {
   await employee.save();
 };
 
+/**
+ * Get employee by the id of the employee
+ * @param {*} id 
+ * @param {*} type 
+ * @returns employee
+ */
 const getEmployeeById = async (id, type) => {
   let employee;
   if (type === EMPLOYEE_TYPES.REGISTERED) {

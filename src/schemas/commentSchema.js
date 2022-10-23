@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 /**
- * Employee schema
+ * Comment schema
  */
 export const commentSchema = new Schema({
   comment: { type: String, required: true },

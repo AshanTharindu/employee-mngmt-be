@@ -1,5 +1,11 @@
 import employeeService from '../services/employeeService';
 
+
+/**
+ * Employee controller
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const getEmployees = async (req, res) => {
   try {
     const employees = await employeeService.getEmployees();

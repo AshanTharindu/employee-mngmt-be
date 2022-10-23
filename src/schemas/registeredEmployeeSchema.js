@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 
 /**
  * Employee schema
+ * This type of employee can login to the system
  */
 export const registeredEmployeeSchema = new Schema({
   username: { type: String, required: true, unique: true }, // username should be unique

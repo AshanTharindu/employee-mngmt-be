@@ -2,6 +2,9 @@ import { Router } from 'express';
 import * as employeeController from '../controllers/employeeController';
 import { authenticate } from '../middlewares/authHandler';
 
+/**
+ * Employee related routes
+ */
 const router = Router();
 router.get('/', authenticate, employeeController.getEmployees);
 router.post('/', employeeController.registerEmployee);
