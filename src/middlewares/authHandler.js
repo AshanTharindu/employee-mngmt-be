@@ -8,7 +8,7 @@ export const authenticate = async (req, res, next) => {
         const user = await RegisteredEmployee.findOne({ _id: decoded._id })
 
         if (!user) {
-            throw new Error()
+            throw new Error('User not found')
         }
 
         req.token = token
