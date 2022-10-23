@@ -104,7 +104,9 @@ const updateEmployee = async (id, type, employeeUpdate) => {
     employee[empKey] = employeeUpdate[empKey];
   });
   // Reason for using save instead of updateOne/update : run the schema validations and middleware
-  return await employee.save();
+  await employee.save();
+  employee = await getEmployeeById(id, type);
+  return employee;
 };
 
 /**
@@ -125,6 +127,41 @@ const deleteEmployee = async (id, type) => {
     );
   employee.archived = 1;
   await employee.save();
+};
+
+const getEmployeeById = async (id, type) => {
+  let employee;
+  if (type === EMPLOYEE_TYPES.REGISTERED) {
+    employee = await RegisteredEmployee.findById(id).populate([
+      {
+        path: 'comments',
+        model: Comment,
+        populate: [
+          {
+            path: 'author',
+            model: RegisteredEmployee,
+            select: 'firstname lastname',
+          },
+        ],
+      },
+    ]);
+  } else {
+    employee = await Employee.findById(id).populate([
+      {
+        path: 'comments',
+        model: Comment,
+        populate: [
+          {
+            path: 'author',
+            model: RegisteredEmployee,
+            select: 'firstname lastname',
+          },
+        ],
+      },
+    ]);
+  }
+
+  return employee;
 };
 
 export default {
