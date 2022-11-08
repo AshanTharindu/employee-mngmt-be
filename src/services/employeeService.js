@@ -1,46 +1,15 @@
-import bcrypt from 'bcryptjs';
 import { EMPLOYEE_TYPES } from '../constants/constants';
-import { Comment } from '../models/Comment';
-import { Employee } from '../models/Employee';
-import { RegisteredEmployee } from '../models/RegisteredEmployee';
+import employeeRepositary from '../repositories/employeeRepositary';
+import authUtils from '../utils/authUtils';
 
 /**
  * Gets all the employees.
  * @returns
  */
 const getEmployees = async () => {
-  const employees = await Employee.find({ archived: 0 })
-    .lean()
-    .populate([
-      {
-        path: 'comments',
-        model: Comment,
-        populate: [
-          {
-            path: 'author',
-            model: RegisteredEmployee,
-            select: 'firstname lastname',
-          },
-        ],
-      },
-    ]);
-  const registeredEmployees = await RegisteredEmployee.find({
-    archived: 0,
-  })
-    .lean()
-    .populate([
-      {
-        path: 'comments',
-        model: Comment,
-        populate: [
-          {
-            path: 'author',
-            model: RegisteredEmployee,
-            select: 'firstname lastname',
-          },
-        ],
-      },
-    ]);
+  const employees = await employeeRepositary.findEmployees();
+  const registeredEmployees =
+    await employeeRepositary.findRegisteredEmployees();
 
   return [
     ...employees.map((emp) => {
@@ -60,11 +29,9 @@ const getEmployees = async () => {
  * @returns
  */
 const registerEmployee = async (employee) => {
-  const salt = await bcrypt.genSalt(10);
-  employee.password = await bcrypt.hash(employee.password, salt);
+  employee.password = await authUtils.protectUserPassowrd(employee.password);
   employee.registered = 1;
-  const registeredEmployeeModel = new RegisteredEmployee(employee);
-  await registeredEmployeeModel.save();
+  await employeeRepositary.registerEmployee(employee);
 };
 
 /**
@@ -77,7 +44,7 @@ const addEmployees = async (employees) => {
     employee.registered = 0;
     return employee;
   });
-  const savedEmployees = await Employee.insertMany(employees);
+  const savedEmployees = await employeeRepositary.saveEmployees(employees);
   return savedEmployees;
 };
 
@@ -91,9 +58,9 @@ const addEmployees = async (employees) => {
 const updateEmployee = async (id, type, employeeUpdate) => {
   let employee;
   if (type === EMPLOYEE_TYPES.REGISTERED) {
-    employee = await RegisteredEmployee.findById(id);
+    employee = await employeeRepositary.findRegisteredEmployeeById(id);
   } else {
-    employee = await Employee.findById(id);
+    employee = await employeeRepositary.findEmployeeById(id);
   }
   if (employee.archived)
     throw new Error(
@@ -111,15 +78,17 @@ const updateEmployee = async (id, type, employeeUpdate) => {
 
 /**
  * Deletes the employee of given id.
+ * Not hard deleting from the database, becasue we might need that data later,
+ * Instead deleting add the archive flag.
  * Error if employee not found or already deleted
  * @param {*} id
  */
 const deleteEmployee = async (id, type) => {
   let employee;
   if (type === EMPLOYEE_TYPES.REGISTERED) {
-    employee = await RegisteredEmployee.findById(id);
+    employee = await employeeRepositary.findRegisteredEmployeeById(id);
   } else {
-    employee = await Employee.findById(id);
+    employee = await employeeRepositary.findEmployeeById(id);
   }
   if (employee.archived)
     throw new Error(
@@ -130,38 +99,18 @@ const deleteEmployee = async (id, type) => {
 };
 
 const getEmployeeById = async (id, type) => {
-  let employee;
-  if (type === EMPLOYEE_TYPES.REGISTERED) {
-    employee = await RegisteredEmployee.findById(id).populate([
-      {
-        path: 'comments',
-        model: Comment,
-        populate: [
-          {
-            path: 'author',
-            model: RegisteredEmployee,
-            select: 'firstname lastname',
-          },
-        ],
-      },
-    ]);
-  } else {
-    employee = await Employee.findById(id).populate([
-      {
-        path: 'comments',
-        model: Comment,
-        populate: [
-          {
-            path: 'author',
-            model: RegisteredEmployee,
-            select: 'firstname lastname',
-          },
-        ],
-      },
-    ]);
-  }
+  if (type === EMPLOYEE_TYPES.REGISTERED)
+    return employeeRepositary.findRegisteredEmployeeByIdWithEnrichedData(id);
 
-  return employee;
+  return employeeRepositary.findEmployeeByIdWithEnrichedData(id);
+};
+
+const getEmployeeByCredentials = async (username, password) => {
+  const user = await employeeRepositary.findEmployeeByCredentials(
+    username,
+    password
+  );
+  return user;
 };
 
 export default {
@@ -170,4 +119,6 @@ export default {
   addEmployees,
   updateEmployee,
   deleteEmployee,
+  getEmployeeById,
+  getEmployeeByCredentials
 };

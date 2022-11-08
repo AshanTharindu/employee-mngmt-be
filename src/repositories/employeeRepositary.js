@@ -1,39 +1,120 @@
+import { Employee } from '../models/Employee';
+import { RegisteredEmployee } from '../models/RegisteredEmployee';
+import { Comment } from '../models/Comment';
 
 /**
- * Gets all the registerd employees.
- * @returns 
+ * Gets all the employees.
+ * @returns
  */
-const getEmployees = async () => {
-  try {
-    const employees = dbConnection.collection('employees');
-    const cursor = employees.find();
-    const emplyeeList = await cursor.toArray();
-    return emplyeeList;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  } finally {
-    await client.close();
-  }
+const findEmployees = async () => {
+  const employees = await Employee.find({ archived: 0 })
+    .lean()
+    .populate([
+      {
+        path: 'comments',
+        model: Comment,
+        populate: [
+          {
+            path: 'author',
+            model: RegisteredEmployee,
+            select: 'firstname lastname',
+          },
+        ],
+      },
+    ]);
+
+  return employees;
 };
 
-/**
- * Saves the employee register data.
- * @param {*} employee 
- * @returns 
- */
+const findRegisteredEmployees = async () => {
+  const registeredEmployees = await RegisteredEmployee.find({
+    archived: 0,
+  })
+    .lean()
+    .populate([
+      {
+        path: 'comments',
+        model: Comment,
+        populate: [
+          {
+            path: 'author',
+            model: RegisteredEmployee,
+            select: 'firstname lastname',
+          },
+        ],
+      },
+    ]);
+
+  return registeredEmployees;
+};
+
+const findRegisteredEmployeeById = async (id) => {
+  const employee = await RegisteredEmployee.findById(id);
+  return employee;
+};
+
+const findEmployeeById = async (id) => {
+  const employee = await Employee.findById(id);
+  return employee;
+};
+
+const saveEmployees = async (employees) => {
+  const savedEmployees = await Employee.insertMany(employees);
+  return savedEmployees;
+};
+
 const registerEmployee = async (employee) => {
-  const { client, dbConnection } = await getDatabaseConnection();
-  try {
-    const employees = dbConnection.collection('employees');
-    const registeredEmployee = await employees.insertOne(employee);
-    return registeredEmployee;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  } finally {
-    await client.close();
-  }
+  const registeredEmployeeModel = new RegisteredEmployee(employee);
+  await registeredEmployeeModel.save();
 };
 
-export default { getEmployees, registerEmployee };
+const findEmployeeByIdWithEnrichedData = async (id) => {
+  const employee = await Employee.findById(id).populate([
+    {
+      path: 'comments',
+      model: Comment,
+      populate: [
+        {
+          path: 'author',
+          model: RegisteredEmployee,
+          select: 'firstname lastname',
+        },
+      ],
+    },
+  ]);
+  return employee;
+};
+
+const findRegisteredEmployeeByIdWithEnrichedData = async (id, type) => {
+  const registeredEmployee = await RegisteredEmployee.findById(id).populate([
+    {
+      path: 'comments',
+      model: Comment,
+      populate: [
+        {
+          path: 'author',
+          model: RegisteredEmployee,
+          select: 'firstname lastname',
+        },
+      ],
+    },
+  ]);
+  return registeredEmployee;
+};
+
+const findEmployeeByCredentials = async(username, password) => {
+  const user = await RegisteredEmployee.findByCredentials(username, password);
+  return user;
+}
+
+export default {
+  findEmployees,
+  findRegisteredEmployees,
+  saveEmployees,
+  registerEmployee,
+  findEmployeeById,
+  findRegisteredEmployeeById,
+  findRegisteredEmployeeByIdWithEnrichedData,
+  findEmployeeByIdWithEnrichedData,
+  findEmployeeByCredentials
+};
