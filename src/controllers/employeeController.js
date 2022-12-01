@@ -1,12 +1,13 @@
 import employeeService from '../services/employeeService';
 
-export const getEmployees = async (req, res) => {
+export const getEmployees = async (req, res, next) => {
   try {
     const employees = await employeeService.getEmployees();
     res.status(200).send(employees);
   } catch (err) {
     console.log(err);
-    req.err(err);
+    // res.status(500).send({ msg: err.message });
+    next(err);
   }
 };
 

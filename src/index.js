@@ -9,6 +9,8 @@ import routes from './routes';
 
 import { APP_HOST, APP_PORT, BASE_URL } from './configs/config';
 import initializer from './initializer';
+import { correlation } from './middlewares/correlation';
+import { errorHandler } from './middlewares/errorHandler';
 
 initializer().then(() => {
   const app = express();
@@ -21,10 +23,12 @@ initializer().then(() => {
   app.use(compression());
   app.use(express.json());
   app.use(httpContext.middleware);
-
+  app.use(correlation())
+  
   // API Routes
   app.use(BASE_URL, routes);
-
+  
+  app.use(errorHandler())
   app.listen(app.get('port'), app.get('host'), () => {
     console.log(
       `Server started at http://${app.get('host')}:${app.get(
